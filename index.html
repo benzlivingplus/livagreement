@@ -1,0 +1,756 @@
+<!doctype html>
+<html lang="th">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>LIV Agreement</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Thai:wght@400;500;600&family=Sarabun:wght@400;700&family=Noto+Sans+SC:wght@400;700&display=swap">
+<style>
+/* Layout: working form on the left, the printed A4 contract on the right — the paper is the product. */
+:root{
+  --bg:#eef0ec; --panel:#ffffff; --ink:#1d2421; --muted:#5f6a64; --line:#d6dbd5;
+  --accent:#1f5c4a; --accent-ink:#ffffff; --accent-soft:#e2eee8; --warn:#9a4a12; --field:#f7f8f6;
+  --desk:#d9ddd6;
+  --ui:"IBM Plex Sans Thai","Sarabun",system-ui,sans-serif;
+  --doc-th:"Sarabun","Leelawadee UI","Tahoma",sans-serif;
+  --doc-cn:"Noto Sans SC","Microsoft YaHei","PingFang SC",sans-serif;
+  color-scheme:light;
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){
+  --bg:#141917; --panel:#1c2320; --ink:#e6ebe7; --muted:#9aa7a0; --line:#2f3a35;
+  --accent:#5fb394; --accent-ink:#0d1512; --accent-soft:#213a31; --warn:#e3a06a; --field:#232b28; --desk:#0f1311; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#141917; --panel:#1c2320; --ink:#e6ebe7; --muted:#9aa7a0; --line:#2f3a35;
+  --accent:#5fb394; --accent-ink:#0d1512; --accent-soft:#213a31; --warn:#e3a06a; --field:#232b28; --desk:#0f1311; color-scheme:dark}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);font-family:var(--ui);font-size:14px}
+.app{display:grid;grid-template-columns:minmax(300px,400px) 1fr;min-height:100vh}
+@media (max-width:900px){.app{grid-template-columns:1fr}}
+.side{background:var(--panel);border-right:1px solid var(--line);padding-block:16px 40px;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:16px;display:flex;flex-direction:column;gap:14px;min-width:0}
+@media (min-width:901px){.side{position:sticky;top:0;height:100vh;overflow:auto}}
+@media (max-width:900px){.side{border-right:0;border-bottom:1px solid var(--line);padding-right:max(16px,env(safe-area-inset-right,0px))}}
+.brand{display:flex;flex-direction:column;gap:2px}
+.brand h1{font-size:19px;font-weight:600;margin:0;text-wrap:balance}
+.brand p{margin:0;color:var(--muted);font-size:12.5px}
+.actions{display:flex;flex-wrap:wrap;gap:8px}
+button{font:inherit;cursor:pointer;border-radius:8px;border:1px solid var(--line);background:var(--field);color:var(--ink);padding:8px 12px}
+button:hover{border-color:var(--accent)}
+button:focus-visible,input:focus-visible,select:focus-visible{outline:2px solid var(--accent);outline-offset:1px}
+button.primary{background:var(--accent);color:var(--accent-ink);border-color:var(--accent);font-weight:600}
+button.small{padding:4px 9px;font-size:12.5px}
+button:disabled{opacity:.55;cursor:default}
+.status{font-size:12.5px;color:var(--muted);min-height:1.2em}
+.status.err{color:var(--warn)}
+fieldset{border:1px solid var(--line);border-radius:10px;padding:10px 12px 12px;margin:0;display:grid;grid-template-columns:1fr 1fr;gap:8px 10px;min-width:0}
+legend{font-weight:600;font-size:13px;padding:0 6px;color:var(--accent)}
+label{display:flex;flex-direction:column;gap:3px;font-size:12.5px;color:var(--muted);min-width:0}
+label.full,.full{grid-column:1/-1}
+input,select{font:inherit;font-size:14px;color:var(--ink);background:var(--field);border:1px solid var(--line);border-radius:7px;padding:7px 9px;width:100%;min-width:0}
+input[type=checkbox]{width:auto}
+.check{flex-direction:row;align-items:center;gap:8px;color:var(--ink);font-size:13.5px}
+.seg{display:flex;gap:0;border:1px solid var(--line);border-radius:8px;overflow:hidden}
+.seg button{border:0;border-radius:0;flex:1;background:var(--field)}
+.seg button[aria-pressed=true]{background:var(--accent);color:var(--accent-ink);font-weight:600}
+.sum{grid-column:1/-1;display:flex;flex-wrap:wrap;gap:6px}
+.chip{background:var(--accent-soft);color:var(--ink);border-radius:999px;padding:3px 10px;font-size:12.5px;font-variant-numeric:tabular-nums}
+.hint{grid-column:1/-1;font-size:12px;color:var(--muted);margin:0}
+.saved{display:flex;flex-direction:column;gap:6px}
+.saved ul{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:4px;max-height:180px;overflow:auto}
+.saved li{display:flex;gap:6px;align-items:center;justify-content:space-between;border:1px solid var(--line);border-radius:8px;padding:5px 6px 5px 10px;font-size:13px}
+.saved li.cur{border-color:var(--accent)}
+.saved li span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;min-width:0}
+.saved li div{display:flex;gap:4px;flex:none}
+.confirm{display:flex;gap:6px;align-items:center;font-size:12.5px;color:var(--warn)}
+/* preview */
+.desk{background:var(--desk);padding-block:20px 60px;padding-left:16px;padding-right:max(16px,env(safe-area-inset-right,0px));min-width:0;overflow-x:auto}
+.desk-head{display:flex;justify-content:space-between;align-items:center;max-width:820px;margin:0 auto 10px;color:var(--muted);font-size:12.5px;gap:8px;flex-wrap:wrap}
+#pages{display:flex;flex-direction:column;align-items:center;gap:18px;zoom:var(--z,1)}
+/* ---- paper (always printed colours) ---- */
+.page{width:794px;height:1123px;background:#fff;color:#111;position:relative;box-shadow:0 2px 10px rgba(0,0,0,.18);flex:none}
+.page .body{position:absolute;left:68px;right:68px;top:62px;bottom:74px;overflow:hidden}
+.page .pno{position:absolute;right:68px;bottom:36px;font:11px var(--doc-th);color:#555}
+.b{margin:0}
+.b.zh{font:12.5px/1.65 var(--doc-cn);color:#111}
+.b.en{font:12.5px/1.6 var(--doc-th);color:#111}
+.b.th{font:13.5px/1.6 var(--doc-th);color:#111}
+.b.ind{padding-left:22px}
+.b.ind2{padding-left:44px}
+.b.just{text-align:justify}
+.b.title{font:700 15px/1.7 var(--doc-cn);text-align:center;text-decoration:underline;text-underline-offset:3px}
+.b.title.th{font:700 17px/1.7 var(--doc-th)}
+.b.h{font-weight:700}
+.b.h.zh{font-weight:700}
+.gap{height:9px}.gap.s{height:4px}.gap.l{height:16px}
+.fill{font-weight:700;display:inline-block;max-width:100%;border-bottom:1.3px dotted #111;line-height:1.25;padding:0 3px;text-indent:0}
+.blank{display:inline-block;border-bottom:1.3px dotted #111;height:1em;vertical-align:baseline}
+.sig{display:grid;grid-template-columns:1fr 1fr;gap:34px 40px;margin-top:6px}
+.sig div{font:12.5px/1.7 var(--doc-th);color:#111}
+.sig .ln{display:block;border-bottom:1.3px dotted #111;height:30px;margin-bottom:4px}
+.sig .nm{display:block;text-align:center;color:#111}
+.offscreen{position:fixed;left:-20000px;top:0;zoom:1}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+@page{size:A4;margin:0}
+@media print{
+  body{background:#fff}
+  .side,.desk-head{display:none!important}
+  .app{display:block}
+  .desk{padding:0!important;background:#fff;overflow:visible}
+  #pages{zoom:1!important;gap:0;display:block}
+  .page{box-shadow:none;break-after:page;page-break-after:always;margin:0}
+  .page:last-child{break-after:auto;page-break-after:auto}
+}
+.files{display:flex;flex-direction:column;gap:8px;border:1px solid var(--line);border-radius:10px;padding:10px 12px 12px}
+.files .row{display:flex;gap:6px;flex-wrap:wrap;align-items:center}
+.files .row input{flex:1 1 160px}
+.files h2{font-size:13px;margin:0;color:var(--accent)}
+.saved li small{color:var(--muted);font-size:11.5px;display:block}
+.saved li .meta{display:flex;flex-direction:column;min-width:0}
+.saved li .meta b{font-weight:500;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.filebtn{cursor:pointer;border:1px solid var(--line);border-radius:8px;padding:4px 9px;background:var(--field);color:var(--ink);font-size:12.5px}
+</style>
+</head>
+<body>
+<div class="app">
+  <aside class="side" aria-label="ข้อมูลสัญญา">
+    <div class="brand">
+      <h1>สร้างสัญญาเช่าบ้าน</h1>
+      <p>THE LIVING PLUS · กรอกเฉพาะข้อมูลที่เปลี่ยน สัญญา 3 ภาษาจะอัปเดตทันที</p>
+    </div>
+    <div class="actions">
+      <button class="primary" id="btnPrint" type="button">พิมพ์ / บันทึกเป็น PDF</button>
+      <button id="btnPdf" type="button">ดาวน์โหลดไฟล์ PDF</button>
+    </div>
+    <div class="status" id="status" role="status" aria-live="polite"></div>
+
+    <section class="files" aria-label="ระบบเก็บสัญญา">
+      <h2>ระบบเก็บสัญญา</h2>
+      <label>ชื่อไฟล์สัญญา<input id="fileName" placeholder="เช่น 222-129 XIN QI 2027"></label>
+      <div class="row">
+        <button id="btnSave" type="button" class="small">บันทึก</button>
+        <button id="btnSaveAs" type="button" class="small">บันทึกเป็นไฟล์ใหม่</button>
+        <button id="btnNew" type="button" class="small">สัญญาใหม่ (ใช้เงื่อนไขเดิม)</button>
+      </div>
+      <div class="saved">
+        <input id="search" placeholder="ค้นหาชื่อไฟล์ / ผู้เช่า / บ้านเลขที่" aria-label="ค้นหาสัญญา">
+        <ul id="savedList"></ul>
+      </div>
+      <div class="row">
+        <button id="btnExport" type="button" class="small">สำรองข้อมูลทั้งหมด (.json)</button>
+        <label for="importFile" class="filebtn">นำเข้าไฟล์สำรอง</label>
+        <input id="importFile" type="file" accept="application/json,.json" hidden>
+      </div>
+      <p class="hint" style="margin:0">สัญญาเก็บไว้ในเบราว์เซอร์ของเครื่องนี้ กด "สำรองข้อมูล" เป็นระยะเพื่อย้ายไปเครื่องอื่นหรือกันข้อมูลหาย</p>
+    </section>
+
+    <form id="f" autocomplete="off">
+      <div style="display:flex;flex-direction:column;gap:12px">
+      <fieldset>
+        <legend>ประเภทสัญญา</legend>
+        <div class="seg full" role="group" aria-label="ประเภทสัญญา">
+          <button type="button" data-mode="new" id="modeNew">สัญญาใหม่</button>
+          <button type="button" data-mode="renew" id="modeRenew">ต่ออายุสัญญา</button>
+        </div>
+        <label class="full" id="prevWrap">วันที่ของสัญญาฉบับเดิม<input id="prevDate" type="date"></label>
+      </fieldset>
+
+      <fieldset>
+        <legend>ผู้ให้เช่า (ฝ่าย ก)</legend>
+        <label class="full">ชื่อ<input id="llName"></label>
+        <label>ประเภทเลข<select id="llType"><option value="id">บัตรประชาชน</option><option value="company">เลขนิติบุคคล</option><option value="passport">พาสปอร์ต</option></select></label>
+        <label>เลขที่<input id="llId"></label>
+      </fieldset>
+
+      <fieldset>
+        <legend>ผู้เช่า (ฝ่าย ข)</legend>
+        <label class="full">ชื่อ / ชื่อบริษัท<input id="tnName"></label>
+        <label>ประเภทเลข<select id="tnType"><option value="passport">พาสปอร์ต</option><option value="id">บัตรประชาชน</option><option value="company">เลขนิติบุคคล</option></select></label>
+        <label>เลขที่<input id="tnId"></label>
+      </fieldset>
+
+      <fieldset>
+        <legend>บ้านที่ให้เช่า</legend>
+        <label class="full">ที่อยู่ บรรทัด 1<input id="addr1"></label>
+        <label class="full">ที่อยู่ บรรทัด 2<input id="addr2"></label>
+      </fieldset>
+
+      <fieldset>
+        <legend>ระยะเวลาเช่า</legend>
+        <label>วันเริ่มสัญญา<input id="start" type="date"></label>
+        <label>จำนวนเดือน<input id="months" type="number" min="1" max="120" inputmode="numeric"></label>
+        <div class="sum" id="termSum"></div>
+      </fieldset>
+
+      <fieldset>
+        <legend>ค่าเช่าและเงินประกัน</legend>
+        <label>ค่าเช่า / เดือน (บาท)<input id="rent" type="number" min="0" step="100" inputmode="numeric"></label>
+        <label>เงินประกัน (บาท)<input id="deposit" type="number" min="0" step="100" inputmode="numeric"></label>
+        <label>ค่าเช่าจ่ายล่วงหน้า (เดือน)<input id="advance" type="number" min="0" max="60" inputmode="numeric"></label>
+        <label>ชำระค่าเช่าทุกวันที่<input id="payDay" type="number" min="1" max="31" inputmode="numeric"></label>
+        <label>ค่าปรับจ่ายช้า (บาท/วัน)<input id="lateFee" type="number" min="0" step="50" inputmode="numeric"></label>
+        <label>ค้างกี่วันบอกเลิกได้<input id="unpaidDays" type="number" min="1" max="60" inputmode="numeric"></label>
+        <div class="sum" id="moneySum"></div>
+      </fieldset>
+
+      <fieldset>
+        <legend>เงื่อนไขเพิ่มเติม</legend>
+        <label class="check full"><input type="checkbox" id="wht"> ผู้เช่ารับภาระภาษีหัก ณ ที่จ่าย 5% (เช่าในนามบริษัท)</label>
+        <label class="check full"><input type="checkbox" id="houseTax"> ผู้เช่าจ่ายภาษีที่เกี่ยวกับบ้านเช่า</label>
+        <label class="check full"><input type="checkbox" id="aircon"> เจ้าของบ้านล้างแอร์ให้ปีละ 1 ครั้ง</label>
+        <label class="check full"><input type="checkbox" id="internet"> ค่าอินเทอร์เน็ต (ผู้เช่าจ่ายส่วนที่เหลือถ้าออกก่อนกำหนด)</label>
+        <label id="netWrap">ค่าเน็ต / เดือน (บาท)<input id="netFee" type="number" min="0" step="50" inputmode="numeric"></label>
+        <label class="check full"><input type="checkbox" id="protect"> ข้อ 13 คุ้มครองผู้เช่ากรณีบ้านถูกยึด/ขายทอดตลาด</label>
+        <label class="full">การใช้งานบ้าน<select id="usage"><option value="res">อยู่อาศัยเท่านั้น</option><option value="mixed">อยู่อาศัยและประกอบกิจการ</option></select></label>
+        <label>ค่าทำความสะอาด (บาท)<input id="cleanFee" type="number" min="0" step="100" inputmode="numeric"></label>
+        <label>ค่าปรับสูบบุหรี่ (บาท)<input id="smokeFine" type="number" min="0" step="1000" inputmode="numeric"></label>
+      </fieldset>
+
+      <fieldset>
+        <legend>บัญชีรับโอนค่าเช่า</legend>
+        <p class="hint">เว้นว่างไว้ได้ สัญญาจะพิมพ์เป็นเส้นไข่ปลาให้เขียนมือ</p>
+        <label class="full">ชื่อบัญชี<input id="bkName"></label>
+        <label>เลขบัญชี<input id="bkNo"></label>
+        <label>ธนาคาร<input id="bkBank" placeholder="เช่น Krungsri Bank / ธนาคารกรุงศรีอยุธยา"></label>
+      </fieldset>
+      </div>
+    </form>
+  </aside>
+
+  <main class="desk">
+    <div class="desk-head"><span id="pageCount">A4</span><span>ตัวอย่างนี้คือหน้าตาเดียวกับไฟล์ PDF</span></div>
+    <div id="pages" aria-label="ตัวอย่างสัญญา"></div>
+  </main>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script>
+(function(){
+"use strict";
+const $=id=>document.getElementById(id);
+const FIELDS=["prevDate","llName","llType","llId","tnName","tnType","tnId","addr1","addr2","start","months","rent","deposit","advance","payDay","lateFee","unpaidDays","wht","houseTax","aircon","internet","netFee","protect","usage","cleanFee","smokeFine","bkName","bkNo","bkBank"];
+const EXAMPLE={mode:"new",prevDate:"",llName:"",llType:"id",llId:"",tnName:"",tnType:"company",tnId:"",
+  addr1:"222/129 La Villa Posh ,Khlong suen plu Sub-District",addr2:"Phra Nakhon Si Ayutthaya District, Phra Nakhon Si Ayutthaya , Thailand 13000",
+  start:"2027-01-01",months:12,rent:28000,deposit:56000,advance:1,payDay:1,lateFee:500,unpaidDays:7,
+  wht:true,houseTax:true,aircon:true,internet:false,netFee:900,protect:true,usage:"res",cleanFee:3000,smokeFine:10000,bkName:"",bkNo:"",bkBank:""};
+let S=Object.assign({},EXAMPLE);
+let currentId=null, currentLabel="";
+
+/* ---------- helpers ---------- */
+const esc=s=>String(s==null?"":s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");
+const num=v=>{v=Number(v)||0;return v.toLocaleString("en-US",{maximumFractionDigits:2});};
+const num2=v=>(Number(v)||0).toLocaleString("en-US",{minimumFractionDigits:2,maximumFractionDigits:2});
+const F=v=>(v===""||v==null)?'<span class="blank" style="width:120px"></span>':'<span class="fill">'+esc(v)+'</span>';
+const FW=(v,w)=>(v===""||v==null)?'<span class="blank" style="width:'+(w||260)+'px"></span>':'<span class="fill">'+esc(v)+'</span>';
+const roman=n=>["","I","II","III","IV","V","VI","VII","VIII","IX","X","XI","XII"][n]||String(n);
+const ord=n=>{const s=["th","st","nd","rd"],v=n%100;return n+(s[(v-20)%10]||s[v]||s[0]);};
+const pad2=n=>String(n).padStart(2,"0");
+function parseD(s){if(!s)return null;const [y,m,d]=s.split("-").map(Number);if(!y||!m||!d)return null;return new Date(y,m-1,d);}
+const dmy=d=>d?d.getDate()+"/"+(d.getMonth()+1)+"/"+d.getFullYear():"";
+function endDate(start,months){if(!start||!months)return null;return new Date(start.getFullYear(),start.getMonth()+Number(months),start.getDate()-1);}
+function wrapDay(n){return n>31?n-31:n;}
+function bahtText(n){
+  n=Math.round(Number(n)||0); if(!n) return "ศูนย์บาทถ้วน";
+  const d=["","หนึ่ง","สอง","สาม","สี่","ห้า","หก","เจ็ด","แปด","เก้า"],p=["","สิบ","ร้อย","พัน","หมื่น","แสน"];
+  function six(x){let s="",str=String(x),L=str.length;for(let i=0;i<L;i++){const c=+str[i],pos=L-i-1;if(!c)continue;
+    if(pos===1&&c===1)s+="สิบ";else if(pos===1&&c===2)s+="ยี่สิบ";else if(pos===0&&c===1&&L>1)s+="เอ็ด";else s+=d[c]+p[pos];}return s;}
+  let out="",mil=Math.floor(n/1e6),rest=n%1e6; if(mil) out+=six(mil)+"ล้าน"; out+=six(rest); return out+"บาทถ้วน";
+}
+/* Thai has no spaces between words: mark word boundaries with zero-width spaces so the PDF renderer wraps lines the same way the browser does */
+const SEG=(typeof Intl!=="undefined"&&Intl.Segmenter)?new Intl.Segmenter("th",{granularity:"word"}):null;
+const TH=/[฀-๿]/;
+function segText(t){
+  if(!SEG||!TH.test(t))return t;
+  let out="",prev="";
+  for(const s of SEG.segment(t)){const w=s.segment;if(out&&TH.test(prev.slice(-1))&&TH.test(w[0]))out+="​";out+=w;prev=w;}
+  return out;
+}
+const thz=html=>html.replace(/(^|>)([^<]+)/g,(m,a,t)=>a+segText(t));
+
+/* ---------- contract text ---------- */
+const ID_LABEL={id:"身份证号码/ID Card No./เลขประจำตัวประชาชน",passport:"护照号码/Passport No./เลขที่พาสปอร์ต",company:"公司注册号码/Company Registration No./เลขทะเบียนนิติบุคคล"};
+
+function build(s){
+  const B=[];const P=(lang,html,o)=>B.push(Object.assign({lang,html},o||{}));
+  const G=c=>B.push({gap:c||""}); const H=(lang,html)=>B.push({lang,html,h:true,keep:true});
+  const renew=s.mode==="renew";
+  const R=Number(s.rent)||0, D=Number(s.deposit)||0, A=Number(s.advance)||0, M=Number(s.months)||0;
+  const dm=R?Math.round(D/R*100)/100:0;
+  const pay=renew?A*R:D+A*R;
+  const st=parseD(s.start), en=endDate(st,M), pv=parseD(s.prevDate);
+  const pd=Math.min(31,Math.max(1,Number(s.payDay)||1)), late=wrapDay(pd+3), fine=wrapDay(pd+4);
+  const gross=Math.round(R/0.95*100)/100, tax=Math.round((gross-R)*100)/100;
+  const cleaning=num(s.cleanFee), smoke=Number(s.smokeFine)||0, lf=num(s.lateFee), ud=pad2(Number(s.unpaidDays)||7);
+
+  // titles
+  P("zh",renew?"租赁续约协议":"租赁协议",{title:1}); P("en",renew?"Lease Renewal Agreement":"Lease Agreement",{title:1}); P("th",renew?"สัญญาต่ออายุสัญญาเช่าบ้าน":"สัญญาเช่าบ้าน",{title:1,cls:"th"});
+  G("l");
+  P("zh","合同甲方/Party A/ผู้ให้เช่า ฝ่าย ก：&nbsp; "+FW(s.llName));
+  P("zh",ID_LABEL[s.llType]+"：&nbsp; "+FW(s.llId,200)); G("l");
+  P("zh","合同乙方/Party B/ผู้เช่า ฝ่าย ข：&nbsp; "+FW(s.tnName));
+  P("zh",ID_LABEL[s.tnType]+"：&nbsp; "+FW(s.tnId,200)); G("l");
+  P("zh","甲方同意将房子出租给乙方，双方在法律的基础上，经友好协商，制定如下协议：");
+  P("en","Party A agrees to lease the property to Party B. Based on the law, two parties have made the following agreement:");
+  P("th","คู่สัญญาทั้งสองฝ่ายได้แก่ “ผู้ให้เช่า” ฝ่าย ก ตกลงที่จะให้เช่าทรัพย์สินแก่ “ผู้เช่า” ฝ่าย ข โดยทั้งสองฝ่ายได้ตกลงทำสัญญากันไว้ดังมีข้อความดังต่อไปนี้");
+  if(renew){
+    const pvC=pv?pv.getFullYear()+"年"+(pv.getMonth()+1)+"月"+pv.getDate()+"日":"";
+    G();
+    P("zh","本合同为双方于"+F(pvC)+"就同一租赁房屋签订的原租赁合同的续约合同。自本合同租期开始之日起，适用本合同的条款和条件。");
+    P("en","This Agreement is a renewal of the previous lease agreement dated "+F(dmy(pv))+" between the same parties for the same rental house. From the commencement date of this Agreement, the terms and conditions of this Agreement shall apply.");
+    P("th","สัญญาฉบับนี้เป็นสัญญาต่ออายุสัญญาเช่าฉบับเดิม ลงวันที่ "+F(dmy(pv))+" ระหว่างคู่สัญญาเดียวกัน สำหรับบ้านเช่าหลังเดียวกัน โดยนับตั้งแต่วันเริ่มต้นการเช่าตามสัญญาฉบับนี้ ให้ใช้ข้อกำหนดและเงื่อนไขตามสัญญาฉบับนี้");
+  }
+  G("l");
+  H("zh","一．房屋地址"); H("en","1. Rental Address");
+  P("zh","甲方出租的房子坐落/ สถานที่อยู่ที่ให้เช่า&nbsp; "+FW(s.addr1,380));
+  P("zh",FW(s.addr2,560));
+  G("l");
+  H("zh","二．租赁期限"); H("en","2. Lease Term");
+  P("zh","本合约租赁期限为 "+F(M||"")+" 个月，从 "+F(st?st.getFullYear():"")+" 年 "+F(st?st.getMonth()+1:"")+" 月 "+F(st?st.getDate():"")+" 日至 "+F(en?en.getFullYear():"")+" 年 "+F(en?en.getMonth()+1:"")+" 月 "+F(en?en.getDate():"")+" 日止。",{cls:"ind"});
+  P("en","The tenancy agreement will begin from "+F(dmy(st))+" to "+F(dmy(en))+" for a term of "+F(M||"")+" months.",{cls:"ind"});
+  P("th","สัญญาเช่า เริ่มตั้งแต่วันที่ "+F(dmy(st))+" ถึงวันที่ "+F(dmy(en))+" เป็นระยะเวลา "+F(M||"")+" เดือน",{cls:"ind"});
+  G("l");
+  H("zh","三．租金、押金及付款方式"); H("en","3. Rent, Deposit and Payment Method"); H("th","3. เงื่อนไขการชำระเงินค่าเช่า ค่ามัดจำ");
+  const tail_zh="据本合同条款，合同到期后，若是乙方未造成任何损坏，搬出去之前，乙方要把所有电水费及其他帐结清，甲方把押金扣除未结清费用后还乙方（第七条第2款所述情形除外）。";
+  const tail_en=" In case the said premises shall be destroyed or damaged, Party B shall bear the cost of repair and required to settle all utilities fees (water and electricity) before move out. Party B shall duly perform the said covenants, conditions and stipulations as aforesaid, Party A shall refund the deposit to Party B after deducting any outstanding amounts, except in the case under Clause 7 (II).";
+  const tail_th=" เมื่อครบกำหนดสัญญานี้ ในกรณีที่สถานที่ดังกล่าวถูกทำลายหรือเสียหาย ฝ่าย ข. จะต้องรับผิดชอบค่าใช้จ่ายในการซ่อมแซมและต้องชำระค่าธรรมเนียมสาธารณูปโภคทั้งหมด (น้ำและไฟฟ้า) ก่อนย้ายออก ฝ่าย ข จะต้องปฏิบัติตามพันธสัญญา เงื่อนไข และข้อกำหนดดังกล่าวอย่างถูกต้องตามที่กล่าวไว้ข้างต้น ฝ่าย ก จึงจะคืนเงินประกันให้แก่ฝ่าย ข หลังหักค่าใช้จ่ายที่ค้างชำระ (เว้นแต่กรณีผิดสัญญาตามข้อ 7.2)";
+  if(!renew){
+    P("zh","1、每月租金为 "+F(num(R))+" 泰铢，押金为 "+F(dm)+" 个月租金共 "+F(num(D))+" 泰铢，乙方在签合同之日把 "+F(dm)+" 个月的押金和 "+F(A)+" 个月的租金共 "+F(num(pay))+" 泰铢支付给甲方。"+tail_zh,{cls:"ind just"});
+    G("s");
+    P("en","(I) Monthly rental is THB "+F(num(R))+" Baht. "+F(dm)+" months rent as security deposit, a total of THB "+F(num(D))+" Baht. The advance payment of "+F(A)+(A===1?" month":" months")+" rental and "+F(dm)+" months deposit to Party A, total amount of THB "+F(num(pay))+" Baht, is payable on the signing of this agreement."+tail_en,{cls:"ind just"});
+    G("s");
+    P("th","(I) ค่าเช่ารายเดือน "+F(num(R))+" บาท โดยมีค่าประกัน "+F(dm)+" เดือนจากราคาเช่า คิดเป็นมูลค่า "+F(num(D))+" บาท จ่ายก่อนเข้าอยู่ ผู้เช่าได้ชำระค่าเช่าล่วงหน้า "+F(A)+" เดือน และประกัน "+F(dm)+" เดือน ให้ฝ่าย ก. รวมเป็นเงิน "+F(num(pay))+" บาท"+tail_th,{cls:"ind just"});
+  }else{
+    P("zh","1、每月租金为 "+F(num(R))+" 泰铢，押金为 "+F(num(D))+" 泰铢，沿用原租赁合同中乙方已支付的押金，乙方无需另行支付押金。乙方在签订本合同之日一次性预付 "+F(A)+" 个月的租金，共 "+F(num(pay))+" 泰铢支付给甲方。"+tail_zh,{cls:"ind just"});
+    G("s");
+    P("en","(I) Monthly rental is THB "+F(num(R))+" Baht. The security deposit is THB "+F(num(D))+" Baht, carried over from the deposit already paid by Party B under the previous lease agreement; Party B is not required to pay an additional deposit. The advance payment of "+F(A)+(A===1?" month'":" months'")+" rental, total amount of THB "+F(num(pay))+" Baht, is payable in a single payment on the signing of this agreement."+tail_en,{cls:"ind just"});
+    G("s");
+    P("th","(I) ค่าเช่ารายเดือน "+F(num(R))+" บาท เงินประกันการเช่า "+F(num(D))+" บาท โดยใช้เงินประกันเดิมที่ฝ่าย ข ได้ชำระไว้ตามสัญญาเช่าฉบับเดิม ฝ่าย ข ไม่ต้องชำระเงินประกันเพิ่ม ในวันทำสัญญาฉบับนี้ ฝ่าย ข ชำระค่าเช่าล่วงหน้า "+F(A)+" เดือน ให้ฝ่าย ก ในครั้งเดียว รวมเป็นเงิน "+F(num(pay))+" บาท"+tail_th,{cls:"ind just"});
+  }
+  G();
+  P("zh","2、乙方以现金或转账形式于每月 "+F(pd)+" 号，向甲方支付本月租金。",{cls:"ind"});
+  P("en","(II) Party B shall pay Party A the monthly rental in cash or transfer on the "+F(ord(pd))+" day of each month.",{cls:"ind"});
+  P("th","การชำระเงินค่าเช่า ในครั้งต่อไปผู้เช่าต้องจ่ายเป็นรายเดือนโดยไม่มีการหักใดๆ ในวันที่ "+F(pd)+" ของเดือนโดยทางธนาคารโดยตรงหรือเงินสด",{cls:"ind"});
+  G();
+  P("zh","3、乙方应按约定的时间支付上述租金。如乙方未能在到期日后3天内支付租金，甲方有权向乙方收取每日"+lf+"泰铢的滞纳金，直至甲方收到租金为止。罚款方式如下：<b>如果乙方在 "+F(late)+" 号后支付租金，甲方将从 "+F(fine)+" 号开始罚款。</b>",{cls:"ind just"});
+  P("en","(III) Party B must pay rent to Party A according to the agreed time. If Party B fails to pay within 3 days after the due date, Party A shall be entitled to charge Party B a late fee of "+lf+" baht per day until Party A receives the rent. The fine method: If Party B pays the rent after the "+F(ord(late))+", Party B will be fined starting from the "+F(ord(fine))+".",{cls:"ind just"});
+  P("th","ฝ่าย ข จะจ่ายค่าเช่าดังกล่าวในเวลาและข้อตกลงดังกล่าว <b>หากฝ่าย ข ไม่ชำระเงินภายใน 3 วันหลังจากวันครบกำหนด</b> ฝ่าย ก จะมีสิทธิเรียกเก็บเงินค่าปรับ ฝ่าย ข เป็นจำนวนเงิน "+lf+" บาทต่อวันจนกว่าฝ่าย ก จะได้รับเงินค่าเช่า",{cls:"ind just"});
+  P("th","วิธีการปรับดังนี้ หากฝ่าย ข ไม่ได้ชำระค่าเช่าภายในวันที่ "+F(late)+" ฝ่าย ก จะเริ่มปรับตั้งแต่วันที่ "+F(fine)+" เป็นต้นไป",{cls:"ind"});
+  let k3=4;
+  if(s.wht){
+    G();
+    P("zh","4、本合同约定的租金为甲方实收的净额。如乙方以公司名义承租，因此产生的5%预扣税由乙方承担，乙方须在租金之外另行支付，不得从支付给甲方的租金中扣除，甲方须按约定收取全额租金。即以公司名义承租时：扣税前租金为每月 "+F(num2(gross))+" 泰铢，扣除5%预扣税 "+F(num2(tax))+" 泰铢后，甲方每月实收净租金 "+F(num(R))+" 泰铢。",{cls:"ind just"});
+    G("s");
+    P("en","(IV) The rent stated in this Agreement is the net amount to be received in full by Party A. In the event that Party B leases the property in the name of a company, the resulting 5% withholding tax on the rent shall be borne by Party B in addition to the rent and shall not be deducted from the rent paid to Party A. Party A shall receive the full agreed rent. Accordingly, where Party B leases in the name of a company, the rent before withholding tax is THB "+F(num2(gross))+" per month; after deducting the 5% withholding tax of THB "+F(num2(tax))+", the net rent received by Party A is THB "+F(num(R))+" per month.",{cls:"ind just"});
+    G("s");
+    P("th","(IV) ค่าเช่าตามสัญญานี้เป็นจำนวนเงินสุทธิที่ฝ่าย ก จะได้รับเต็มจำนวน ในกรณีที่ฝ่าย ข เช่าในนามบริษัท จะมีภาษีหัก ณ ที่จ่าย 5% ของค่าเช่าเกิดขึ้น ฝ่าย ข จะต้องเป็นผู้รับภาระชำระเพิ่มเติมจากค่าเช่า และจะนำมาหักออกจากค่าเช่าที่ชำระให้ฝ่าย ก ไม่ได้ โดยฝ่าย ก จะต้องได้รับค่าเช่าเต็มจำนวนตามที่ตกลงกันไว้ ทั้งนี้ กรณีเช่าในนามบริษัท ค่าเช่าก่อนหักภาษี ณ ที่จ่าย คือ "+F(num2(gross))+" บาทต่อเดือน หักภาษี ณ ที่จ่าย 5% เป็นเงิน "+F(num2(tax))+" บาท คงเหลือค่าเช่าสุทธิที่ฝ่าย ก ได้รับ "+F(num(R))+" บาทต่อเดือน",{cls:"ind just"});
+    k3=5;
+  }
+  G();
+  P("zh",k3+"、租金包含以下内容",{cls:"ind",keep:1});
+  P("en","The rental price shall include the following：ค่าเช่าบ้านรวมถึงสิ่งต่อไปนี้",{cls:"ind",keep:1});
+  P("zh","1. 附件中列出的全套家具",{cls:"ind"}); P("en","Full furnishing enclosed in the annex / เฟอร์นิเจอร์ครบตามเอกสารรูปถ่ายแนบท้าย",{cls:"ind2"});
+  P("zh","2. 包含物业管理费",{cls:"ind"}); P("en","Including property management fee / รวมค่าบริหารจัดการทรัพย์สิน (ค่าส่วนกลาง)",{cls:"ind2"});
+  P("zh","3. 非承租人造成的房屋维修费",{cls:"ind"}); P("en","Property repair/fixing fee not arising from the damage caused by Tenant",{cls:"ind2"}); P("th","ค่าซ่อมแซม การซ่อมแซมทรัพย์สินที่ไม่เกิดจากความเสียหายที่เกิดจากผู้เช่า",{cls:"ind2"});
+  G();
+  P("zh",(k3+1)+"、银行转账信息",{cls:"ind",keep:1}); P("en","Bank Transfer Information",{cls:"ind",keep:1});
+  P("zh","每月付款可以通过现金，支票或银行转账直接支付给甲方。如果银行向出租人收取费用，则应由承租人支付该银行费用。",{cls:"ind just"});
+  P("en","Monthly payments must be made directly to the Party A through cash, check or bank transfer as following. A bank fee that may apply is to be paid by the Party B if charged to the Party A.",{cls:"ind just"});
+  P("th","การชำระเงินรายเดือนสามารถทำได้โดยตรงกับฝ่าย ก ผ่านเงินสด เช็ค หรือการโอนเงินผ่านธนาคาร ฝ่าย ข จะต้องชำระค่าธรรมเนียมธนาคาร ตามรายละเอียด ดังนี้",{cls:"ind just"});
+  G("s");
+  P("zh","用户名 Account Name：&nbsp; "+FW(s.bkName,380),{cls:"ind"}); G("s");
+  P("zh","账号 Account Number：&nbsp; "+FW(s.bkNo,360),{cls:"ind"}); G("s");
+  P("zh","银行名称 Bank Name：&nbsp; "+FW(s.bkBank,380),{cls:"ind"});
+  G();
+  P("zh","<b>注：租约期满，押金仅退还租户名下银行账户。</b>",{cls:"ind"});
+  P("zh","*租户银行账号没办法收款的情况下：<br>1、租户本人需带护照/身份证来取现金。<br>2、请租户本人手持护照/身份证和授权书给别人拍照证明。",{cls:"ind"});
+  P("en","<b>Note: When the lease expires, the deposit will only be returned to the tenant's name bank account.</b>",{cls:"ind"});
+  P("en","*If the tenant's bank account cannot collect payment:<br>1. The tenant needs to bring passport/ID card to withdraw cash.<br>2. Ask the tenant to hold passport/ID card and authorization letter and ask others to help you take photos to prove.",{cls:"ind"});
+  P("th","<b>หมายเหตุ: เมื่อครบกำหนดสัญญาเช่า จะคืนมัดจำให้กับบัญชีธนาคารในชื่อของผู้เช่าเท่านั้น</b>",{cls:"ind"});
+  P("th","*หากผู้เช่าไม่สามารถใช้บัญชีธนาคารในการรับมัดจำคืนได้:<br>1. ผู้เช่าต้องนำพาสปอร์ต/บัตรประชาชนมาใช้ในการยืนยันเพื่อรับเงินสดด้วยตนเอง<br>2. ผู้เช่าถ่ายรูปขณะถือพาสปอร์ต/บัตรประชาชน พร้อมเขียนหนังสือมอบอำนาจให้ผู้อื่นในการรับมัดจำแทนเพื่อเป็นหลักฐานยืนยัน",{cls:"ind"});
+  G("l");
+  // 4
+  H("zh","四. 乙方有下列情形之一的，甲方可以中止合同，收回房屋：");
+  H("en","4. If Party B has one of the following acts, Party A has the right to terminate the agreement and take back the premises: หากฝ่าย ข มีการกระทำอย่างใดอย่างหนึ่งดังต่อไปนี้ ฝ่าย ก มีสิทธิที่จะบอกเลิกสัญญา และยกเลิกสัญญา");
+  P("zh","1、乙方利用承租房屋进行违法经营及犯罪活动的，与甲方无关，一切责任均由乙方负责；",{cls:"ind just"});
+  P("en","(I) Party B lease the premises and conduct illegal or criminal activities, It has nothing to do with Party A, and party B shall be responsible for all its responsibilities;",{cls:"ind just"});
+  P("th","ฝ่าย ข เช่าสถานที่และดำเนินกิจกรรมที่ผิดกฎหมายหรือทางอาญา ไม่มีส่วนเกี่ยวข้องกับฝ่าย ก และฝ่าย ข จะต้องรับผิดชอบต่อความรับผิดชอบทั้งหมดของตน",{cls:"ind just"});
+  G();
+  P("zh","2、乙方拖欠租金当月累计达"+ud+"天的，甲方有权终止合约并扣除所有押金。乙方负责赔偿租赁期间房子的所有损坏后，乙方才能搬走自己的设备。",{cls:"ind just"});
+  P("en","(II) In the event the rent remaining unpaid for <b>"+ud+"</b> days, Party A has the right to terminate the agreement and deduct all deposits. Party B is responsible for compensation, after all the damages to the house during this tenancy, Party B can move its own property in this premises.",{cls:"ind just"});
+  P("th","ในกรณีที่ฝ่าย ข ค้างชำระค่าเช่าเป็นเวลา "+ud+" วัน ฝ่าย ก มีสิทธิบอกเลิกสัญญาและหักเงินมัดจำทั้งหมดได้ ฝ่าย ข จะต้องรับผิดชอบชำระค่าเสียหายทั้งหมดที่เกิดขึ้นกับบ้านในระหว่างระยะเวลาการเช่า ก่อนที่ฝ่าย ข จะสามารถเคลื่อนย้ายสิ่งของและอุปกรณ์ของตนเองได้",{cls:"ind just"});
+  G();
+  P("zh","3、禁止饲养和携带任何种类的宠物，如狗、猫进入房屋。这违反了租赁房屋及所在项目的规定以及本合同的规定。如果租赁房屋受损，包括发现动物的抓痕、饲养动物而散发出不良的味道，一切责任均由乙方负责。",{cls:"ind just"});
+  P("en","Pets are prohibited at all, Including of bringing any kind of pets, such as dogs and cats into the rental house. This is against the regulations of the rental house and the housing project, and it’s specified in this rental agreement. If the rental house is damaged from animal’s scratches or causing any unwanted smell from animal, Party B shall take full responsibilities for it.",{cls:"ind just"});
+  P("th","ห้ามเลี้ยงสัตว์ทุกชนิด รวมถึงห้ามนำสัตว์เลี้ยงทุกชนิด อาทิ สุนัข แมว เข้ามาภายในบ้านเช่า ซึ่งขัดต่อกฎระเบียบของบ้านเช่าและโครงการ และกฎในสัญญาฉบับนี้ หากบ้านเช่าเกิดความเสียหาย มีรอยขีดข่วนจากสัตว์ หรือส่งกลิ่นไม่พึงประสงค์จากการเลี้ยงสัตว์ ฝ่าย ข จะต้องรับผิดชอบต่อความรับผิดชอบทั้งหมดของตน",{cls:"ind just"});
+  G();
+  if(s.usage==="mixed"){
+    P("zh","4、這棟房子既是住宅用途，也是商業用途。如发现日租，甲方有权立即解除合同，且不退还押金。",{cls:"ind just"});
+    P("en","This House is intended to be used for residential purposes and is a place of business. It is not allowed to a daily rental. If it is found that there is daily rental, Party A has the right to cancel the contract immediately without returning the deposit.",{cls:"ind just"});
+    P("th","บ้านเช่านี้มีจุดประสงค์ในการใช้เพื่อการอยู่อาศัย และเป็นสถานที่ประกอบกิจการ ไม่อนุญาตให้ปล่อยเช่ารายวัน หากพบว่ามีการปล่อยเช่ารายวัน ฝ่าย ก มีสิทธิบอกยกเลิกสัญญาทันทีโดยไม่คืนมัดจำ",{cls:"ind just"});
+  }else{
+    P("zh","4、本租赁房产仅限用于居住，不得进行按日出租。若发现按日出租行为，甲方有权立即终止合同，且不予退还押金。",{cls:"ind just"});
+    P("en","This rental property is intended solely for residential use; daily rentals are not permitted. If daily rentals are discovered, Party A reserves the right to terminate the contract immediately without refunding the security deposit.",{cls:"ind just"});
+    P("th","บ้านเช่านี้มีจุดประสงค์ในการใช้เพื่อการอยู่อาศัยเท่านั้น ไม่อนุญาตให้ปล่อยเช่ารายวัน หากพบว่ามีการปล่อยเช่ารายวัน ฝ่าย ก มีสิทธิบอกยกเลิกสัญญาทันทีโดยไม่คืนมัดจำ",{cls:"ind just"});
+  }
+  G();
+  P("zh","5、乙方不得做出任何违反合同规定的行为及所有犯罪的活动。如发现有违反规定的行为，甲方可以中止合同，收回房屋，并有权不退还所有押金。",{cls:"ind just"});
+  P("en","Party B must not do anything that goes against the rules in the contract and conduct illegal or criminal activities. If it is found that there has been an action that violates the specified rules, Party A has the right to terminate the agreement and take back the property immediately without returning the deposit.",{cls:"ind just"});
+  P("th","ฝ่าย ข ต้องไม่กระทำการใด ๆ ที่ขัดต่อกฎในสัญญาทุกประการ หากพบว่ามีการกระทำที่ขัดต่อกฎที่ระบุไว้ ฝ่าย ก มีสิทธิบอกยกเลิกสัญญาทันทีโดยไม่คืนมัดจำ",{cls:"ind just"});
+  G("l");
+  // 5
+  H("zh","五. 租赁期间保护工作"); H("en","5. Maintenance and Damages การบำรุงรักษาและความเสียหาย");
+  P("zh","1、甲方将房屋交给乙方后，乙方没有权利改造房子，在没有经得甲方的同意情况下改造房子造成房子的损坏乙方要负责。",{cls:"ind just"});
+  P("en","(I) Party B not to make or permit to be made any structural alterations to the said premises. Any structural alteration made without Party A consent; Party B shall responsible for the damage caused.",{cls:"ind just"});
+  P("th","ฝ่าย ข จะไม่ทำหรืออนุญาตให้ทำการเปลี่ยนแปลงโครงสร้างใด ๆ กับสถานที่ดังกล่าว การเปลี่ยนแปลงโครงสร้างใด ๆ ที่ทำขึ้นโดยไม่ได้รับความยินยอมจากฝ่าย ก ฝ่าย ข จะต้องรับผิดชอบต่อความเสียหายที่เกิดขึ้น",{cls:"ind just"});
+  G();
+  P("zh","2、乙方负责管理房子，因乙方的疏忽而引起房子的所有损坏都由乙方负责。",{cls:"ind just"});
+  P("en","(II) Party B shall be responsible for managing the premises and Party B is responsible for all damages to the premises caused by Party B negligence.",{cls:"ind just"});
+  P("th","ฝ่าย ข จะต้องรับผิดชอบในการจัดการสถานที่ และฝ่าย ข มีหน้าที่รับผิดชอบต่อความเสียหายทั้งหมดต่อสถานที่ที่เกิดจากความประมาทของฝ่าย ข",{cls:"ind just"});
+  G();
+  P("zh","3、乙方要负责租赁房屋日常的清洁卫生。",{cls:"ind"}); P("en","(III) Party B shall follow reasonable standards of cleanliness.",{cls:"ind"}); P("th","ฝ่าย ข จะต้องปฏิบัติตามมาตรฐานความสะอาดที่เหมาะสม",{cls:"ind"});
+  G();
+  P("zh","4、如果由乙方造成哪怕是乙方的无意所造成的火灾（除了战争、自然灾害之类），应由乙方承担责任；",{cls:"ind just"});
+  P("en","(IV) Party B shall responsible for fire matters, caused by Party B or caused by Party B unintentionally (except for war, natural disaster etc.)",{cls:"ind just"});
+  P("th","ฝ่าย ข จะต้องรับผิดชอบเรื่องอัคคีภัยที่เกิดจากฝ่าย ข หรือเกิดจากฝ่าย ข โดยไม่ได้ตั้งใจ (ยกเว้นสงคราม ภัยธรรมชาติ ไฟไหม้ลุกลามจากข้างบ้าน ฯลฯ)",{cls:"ind just"});
+  G();
+  P("zh","5、以下情况，甲方可进入租赁房屋检查：1、紧急情况，如发生火灾、漏水、漏电，或出于对乙方人身安全的担忧，过3天联系不上乙方的；2、其它客观原因，包括但不限于因项目物业或政府要求需要进入房屋检查的。第1项情况甲方可立即进入，无需事先通知；第2项情况甲方应至少提前24小时通知乙方，并于合理时间（08:00至18:00）内进入。",{cls:"ind just"});
+  P("en","(V) In the following situations, Party A may enter the rental house for inspection: 1. Emergencies, such as fire, water leakage or electrical leakage, or, out of concern for Party B’s personal safety, where Party B cannot be contacted for more than 3 days; 2. Other objective reasons, including but not limited to inspections required by the housing project or government authorities. In case 1, Party A may enter immediately without prior notice. In case 2, Party A shall notify Party B at least 24 hours in advance and enter only at a reasonable time (08:00–18:00).",{cls:"ind just"});
+  P("th","5. ฝ่าย ก มีสิทธิเข้าตรวจสอบบ้านเช่าได้ในกรณีดังต่อไปนี้ โดยกรณีเหตุฉุกเฉิน ฝ่าย ก สามารถเข้าตรวจสอบได้ทันทีโดยไม่ต้องแจ้งล่วงหน้า ส่วนกรณีอื่น ฝ่าย ก ต้องแจ้งให้ฝ่าย ข ทราบล่วงหน้าอย่างน้อย 24 ชั่วโมง และเข้าตรวจในเวลาที่เหมาะสม (08.00–18.00 น.)",{cls:"ind just"});
+  P("th","1. เหตุฉุกเฉิน เช่น เหตุเพลิงไหม้ น้ำรั่ว ไฟฟ้ารั่ว หรือด้วยความห่วงใยต่อความปลอดภัยของฝ่าย ข หากฝ่าย ก ไม่สามารถติดต่อฝ่าย ข ได้เกินระยะเวลา 3 วัน แม้ฝ่าย ข จะไม่ได้ค้างชำระค่าเช่าก็ตาม ฝ่าย ก มีสิทธิเข้าตรวจสอบบ้านเช่าได้ทันที",{cls:"ind2 just"});
+  P("th","2. วัตถุประสงค์จำเป็นอื่น ๆ รวมถึงการตรวจสอบบ้านเช่าตามความต้องการของโครงการหรือหน่วยงานราชการ (กรณีนี้ต้องแจ้งล่วงหน้าตามวรรคแรก)",{cls:"ind2 just"});
+  G();
+  const mixed=s.usage==="mixed";
+  P("zh","6、租客的身份信息必须真实而且是本人，租房合同附件中要有租客有效证件复印件签字留底，如果是护照，需要首页和签证页照片签字（若租客是公司，则需要公司和实际居住人的有效证件）。"+(mixed?"這棟房子既是住宅用途，也是商業用途，":"本房屋仅限用于居住，")+"不得用作仓库或二次转租或其它经营，不得从事任何非法活动。租赁房屋每一处都要拍照，房子出租合同附件要有家具家电及物品的照片、清单和价格，让客户核实并签字确认，以免损坏和丢失，租客需要承担赔偿责任。",{cls:"ind just"});
+  P("en","(VI) The tenant's identity card information must be true and must belong to the tenant himself, and in the lease agreement, all copy of certified document must be signed. For passport documents copy, it is mandatory to sign the first page and passport photo page (in the case of a company name, a company certificate and company address are required). "+(mixed?"This house is for residential purposes and is a place of business,":"This house is for residential purposes only,")+" not allowed to be used as a warehouse, not allowed for second rental (not allowed to rent out again) and must not rent for any illegal acts. Should take pictures of every part of the house and the lease document should include all pictures of the house and furniture. Household appliances and various items with prices are attached for customers to check and sign to confirm to avoid damage and loss. If there is any damage or loss, the renter shall be responsible.",{cls:"ind just"});
+  P("th","6. ข้อมูลบัตรประจำตัวประชาชนผู้เช่าต้องเป็นข้อมูลจริงอีกทั้งต้องเป็นของตัวผู้เช่าจริง ๆ และ ในสัญญาเช่าจะต้องลงนามสำเนาถูกต้องในเอกสารรับรอง เช่น เอกสารพาสปอร์ต จำเป็นต้องลงนามในเอกสารหน้าแรกและหน้ารูปถ่ายพาสปอร์ต (ในกรณีของนามบริษัทต้องมีหนังสือรับรองและที่อยู่ของบริษัท) "+(mixed?"บ้านหลังนี้ใช้เพื่อวัตถุประสงค์ในการอยู่อาศัย และเป็นสถานที่ประกอบกิจการ":"บ้านหลังนี้ใช้เพื่อวัตถุประสงค์ในการอยู่อาศัยเท่านั้น")+" ไม่อนุญาตให้ใช้เป็นโกดัง หรือปล่อยเช่าต่อ และต้องไม่เช่าเพื่อกระทำการใด ๆ ที่ผิดกฎหมาย",{cls:"ind just"});
+  P("th","ควรถ่ายภาพทุกส่วนของบ้านและในเอกสารสัญญาเช่าควรมีรูปถ่ายเฟอร์นิเจอร์ เครื่องใช้ในครัวเรือนและสิ่งของต่าง ๆ พร้อมราคาแนบมาให้ลูกค้าตรวจสอบและเซ็นยืนยันเพื่อไม่ให้เกิดความเสียหายและสูญหาย หากมีความเสียหายหรือสูญหายใด ๆ ผู้เช่าจะต้องรับผิดชอบ",{cls:"ind just"});
+  G();
+  P("zh","7、租户应遵守房屋所在的物业管理规定，如因违反物业管理规定经劝阻无效的，甲方有权收回房屋，且不退还押金。",{cls:"ind just"});
+  P("en","(VII) The tenant shall abide by the property management regulations where the house is located. If dissuasion fails due to violation of the property management regulations, Party A has the right to take back the house without refunding the deposit.",{cls:"ind just"});
+  P("th","7. ผู้เช่าต้องปฏิบัติตามกฎระเบียบการจัดการทรัพย์สินที่ตั้งไว้ หากละเมิดกฎระเบียบการจัดการทรัพย์สิน ฝ่าย ก มีสิทธิ์ยึดบ้านคืนโดยไม่ต้องคืนเงินมัดจำ",{cls:"ind just"});
+  G();
+  P("zh","8、业主有权利每两个月检查一次租赁房屋状况，租户必须要配合。业主必须至少提前3天通知租户。发现房屋内设施有损坏严重的，业主有权利终止租约，寻求租户赔偿。",{cls:"ind just"});
+  P("en","(VIII) The owner has the right to check the condition of the house every two months. The owner must notify the tenant at least 3 days in advance, and the tenant must cooperate. If the facilities in the house are found to be severely damaged, the owner has the right to terminate the lease and seek compensation from the tenant.",{cls:"ind just"});
+  P("th","8. เจ้าของมีสิทธิตรวจสภาพบ้านทุก 2 เดือน โดยเจ้าของจะต้องแจ้งผู้เช่าล่วงหน้าอย่างน้อย 3 วัน โดยผู้เช่าต้องให้ความร่วมมือ หากพบว่ามีสิ่งของภายในบ้านเสียหายหนัก เจ้าของมีสิทธิบอกเลิกสัญญาเช่าและเรียกร้องค่าชดเชยจากผู้เช่า",{cls:"ind just"});
+  G();
+  P("zh","9、房屋内禁止吸烟。如发现有人在房屋内吸烟，乙方须向甲方支付"+num(smoke)+"泰铢的罚款或实际损失赔偿金（以金额较高者为准）。罚款将用于清洗窗帘、清洁主屋以及对房屋进行消毒以消除香烟味。",{cls:"ind just"});
+  P("en","(IX) Smoking is prohibited inside the house. If smoking is found inside the house, Party B must pay Party A a fine of "+num(smoke)+" baht or actual damages (whichever is greater). This fine will be used to wash curtains, clean the main house, and disinfect the house to eliminate cigarette odors.",{cls:"ind just"});
+  P("th","9. ห้ามสูบบุหรี่ภายในบ้าน หากพบว่ามีการสูบบุหรี่ภายในบ้าน ฝ่าย ข ต้องเสียค่าปรับให้แก่ฝ่าย ก. เป็นจำนวนเงิน "+num(smoke)+" บาท ("+bahtText(smoke)+") หรือ คิดค่าเสียหายตามจริง (เมื่ออย่างใดอย่างหนึ่งมีมูลค่ามากกว่า) โดยค่าปรับดังกล่าวจะถูกนำมาใช้ในการซักผ้าม่าน ทำความสะอาดบ้านใหญ่ อบฆ่าเชื้อเพื่อขจัดกลิ่นบุหรี่ภายในบ้าน",{cls:"ind just"});
+  G("l");
+  // 6
+  H("zh","六. 各项费用的缴纳"); H("en","6. Payment of Fees การชำระค่าธรรมเนียมต่าง ๆ");
+  P("zh","1、水电费：由乙方自行缴纳，水电费按照水表、电表读数或供水、供电单位的实际账单计算，从入住当天开始计算。",{cls:"ind just"});
+  P("en","(I) Utilities Fee: Party B shall pay all charges for water and electricity used at the rental house, based on the meter readings or the actual bills issued by the utility providers, calculated from the start date of the lease.",{cls:"ind just"});
+  P("th","ค่าสาธารณูปโภค : ฝ่าย ข ชำระค่าใช้จ่ายทั้งหมดสำหรับน้ำประปาและค่าไฟฟ้าที่ใช้ในบ้านเช่า อัตราค่าบริการเป็นไปตามมิเตอร์และใบแจ้งหนี้จริงของผู้ให้บริการ (การไฟฟ้า/การประปา) นับคำนวณจากวันเริ่มต้นการเช่า",{cls:"ind just"});
+  G();
+  P("zh","2、维修费：租赁期间，由于乙方导致租赁房屋的质量或房屋的内部设施损毁，包括门窗、水电等，维修费由乙方负责。",{cls:"ind just"});
+  P("zh","物品丢失罚款以及退房后其他费用（如有其他费用，乙方将根据实际费用付给甲方）",{cls:"ind"});
+  ["- 钥匙：500泰铢/把","- 停车蓝牙或贴纸：500泰铢/个","- 门把手：1,000泰铢/个","- 打扫费：<b>"+cleaning+"</b>泰铢","- 所有家具配套清洗费，如：床具、沙发等：每件按实际价格计算","- 蒸汽除味（若房屋内有异味）：1,500泰铢/每个房间，需要重点除味会按实际价格计算","- 房屋内留下任何痕迹，如：烟烫、熨斗痕、胶痕：按实际价格计算","- 墙面打孔：800泰铢/个","- 东西丢失或损坏：按实际价格计算"].forEach(t=>P("zh",t,{cls:"ind2"}));
+  G("s");
+  P("en","(II) Maintenance Fee: Party B shall be responsible and bear the cost for the damage to the quality of the said premises or the internal facilities throughout this tenancy, including doors and windows, and home appliances.",{cls:"ind just"});
+  P("en","Fines for lost items and other fees after check-out (if there are other fees, Party B will pay Party A based on the actual costs)",{cls:"ind just"});
+  ["- Key: 500 baht/key","- Parking bluetooth or sticker: 500 baht/piece","- Door knob: 1,000 baht/piece","- Cleaning fee: <b>"+cleaning+"</b> baht","- Cleaning fees for all furniture, such as beds, sofas, etc: based on the actual price","- Odor Removal (If there is an unwanted smell in the house): 1,500 baht/ room in the house. If is intensive removal, based on the actual price","- Any traces in the house, such as: cigarette burns, iron marks, glue marks: based on the actual price","- Drilling the wall: 800 baht/hole","- Things lost or damaged: based on the actual price"].forEach(t=>P("en",t,{cls:"ind2"}));
+  G("s");
+  P("th","ค่าบำรุงรักษา : ฝ่าย ข จะต้องดูแล และรับผิดชอบค่าใช้จ่ายสำหรับความเสียหายต่อคุณภาพของสถานที่ดังกล่าวหรือสิ่งอำนวยความสะดวกภายในตลอดการเช่านี้ รวมถึงประตูและหน้าต่าง และเครื่องใช้ภายในบ้าน",{cls:"ind just"});
+  P("th","ค่าปรับสำหรับสิ่งของที่สูญหายและค่าใช้จ่ายอื่น ๆ ที่เกิดขึ้นหลังจากคืนบ้าน (หากมีค่าธรรมเนียมอื่น ๆ ฝ่าย ข จะชำระค่าปรับให้ฝ่าย ก ตามค่าใช้จ่ายจริง)",{cls:"ind just"});
+  ["- กุญแจ: 500 บาท/ดอก","- บลูทูธหรือสติกเกอร์จอดรถ: 500 บาท/ชิ้น","- ลูกบิดประตู: 1,000 บาท/ชิ้น","- ค่าทำความสะอาด: <b>"+cleaning+"</b> บาท","- ค่าทำความสะอาดเฟอร์นิเจอร์ทั้งหมด เช่น เตียง โซฟา เป็นต้น: คำนวณราคาตามจริง","- อบโอโซนกำจัดกลิ่น (หากภายในบ้านมีกลิ่นไม่พึงประสงค์): 1,500 บาท/ห้องภายในบ้าน หากจำเป็นต้องกำจัดกลิ่นแบบพิเศษจะคำนวณราคาตามจริง","- ร่องรอยเสียหายที่เกิดขึ้นจากการใช้งานภายในบ้าน เช่น รอยไหม้บุหรี่ รอยเตารีด รอยกาว: คำนวณราคาตามจริง","- เจาะผนัง: 800 บาท/จุด","- ของใช้สูญหายหรือเกิดความเสียหาย: คำนวณราคาตามจริง"].forEach(t=>P("th",t,{cls:"ind2"}));
+  // dynamic items 3..n of clause 6
+  let k=3; const kTax=(s.wht||s.houseTax)?4:0; let kNet=0,kAir=0; let nx=kTax?5:4;
+  if(s.internet){kNet=nx++;} if(s.aircon){kAir=nx++;}
+  G();
+  if(kAir){
+    P("zh","3、因使用该处所进行商业活动而发生的一切其他费用（包括清洗洗衣机、安装电话等设备）均由乙方支付。空调清洗依本条第"+kAir+"款办理。",{cls:"ind just"});
+    P("en","(III) All other expenses incurred by using at the said premises for commercial activities shall be paid by Party B (including cleaning the washing machine, installation of telephone, and others equipment.) Air conditioner cleaning shall be as specified in item ("+roman(kAir)+") of this Clause.",{cls:"ind just"});
+    P("th","ค่าใช้จ่ายอื่น ๆ ทั้งหมดที่เกิดขึ้นจากการใช้สอยในสถานที่ภายในบ้าน ฝ่าย ข จะต้องเป็นฝ่ายชำระเงินเอง (รวมถึงการล้างเครื่องซักผ้า การติดตั้งโทรศัพท์ และอุปกรณ์อื่น ๆ) ส่วนการล้างแอร์ให้เป็นไปตามข้อ 6."+kAir,{cls:"ind just"});
+  }else{
+    P("zh","3、因使用该处所进行商业活动而发生的一切其他费用（包括清洗空调或洗衣机、安装电话等设备）均由乙方支付。",{cls:"ind just"});
+    P("en","(III) All other expenses incurred by using at the said premises for commercial activities shall be paid by Party B (including cleaning the air conditioner or washing machine, installation of telephone, and others equipment.)",{cls:"ind just"});
+    P("th","ค่าใช้จ่ายอื่น ๆ ทั้งหมดที่เกิดขึ้นจากการใช้สอยในสถานที่ภายในบ้าน ฝ่าย ข จะต้องเป็นฝ่ายชำระเงินเอง (รวมถึงการล้างแอร์ ล้างเครื่องซักผ้า การติดตั้งโทรศัพท์ และอุปกรณ์อื่น ๆ)",{cls:"ind just"});
+  }
+  if(kTax){
+    G();
+    if(s.wht&&s.houseTax){
+      P("zh","4、5%预扣税由乙方承担（详见第三条第4款）；房产税/费用亦须由乙方缴纳。",{cls:"ind"});
+      P("en","(IV) The 5% withholding tax shall be borne by Party B as specified in Clause 3 (IV). House tax/fee must also be paid by Party B.",{cls:"ind just"});
+      P("th","4. ภาษีหัก ณ ที่จ่าย 5% ฝ่าย ข เป็นผู้รับภาระตามข้อ 3 (IV) และภาษีที่เกี่ยวกับบ้านเช่า จะต้องชำระโดยฝ่าย ข.",{cls:"ind just"});
+    }else if(s.wht){
+      P("zh","4、5%预扣税由乙方承担（详见第三条第4款）。",{cls:"ind"});
+      P("en","(IV) The 5% withholding tax shall be borne by Party B as specified in Clause 3 (IV).",{cls:"ind"});
+      P("th","4. ภาษีหัก ณ ที่จ่าย 5% ฝ่าย ข เป็นผู้รับภาระตามข้อ 3 (IV)",{cls:"ind"});
+    }else{
+      P("zh","4、房产税/费用须由乙方缴纳。",{cls:"ind"});
+      P("en","(IV) House tax/fee must be paid by Party B.",{cls:"ind"});
+      P("th","4. ภาษีที่เกี่ยวกับบ้านเช่า จะต้องชำระโดยฝ่าย ข.",{cls:"ind"});
+    }
+  }
+  if(kNet){
+    const nf=num(s.netFee);
+    G();
+    P("zh",kNet+"、网络费：甲方为租赁房屋安装网络。如乙方在租期届满前搬离租赁房屋或解除本合同，乙方须支付剩余租期的网络费，按剩余月数乘以每月网络费"+nf+"泰铢计算。",{cls:"ind just"});
+    P("en","("+roman(kNet)+") Internet Fee: Party A shall install internet service at the rental house. If Party B vacates the rental house or terminates this Agreement before the expiration of the lease term, Party B shall pay the internet fee for the remaining lease term, calculated as the number of remaining months multiplied by the monthly internet fee of THB "+nf+".",{cls:"ind just"});
+    P("th",kNet+". ค่าอินเทอร์เน็ต: ฝ่าย ก เป็นผู้ติดตั้งอินเทอร์เน็ตให้ภายในบ้านเช่า หากฝ่าย ข ย้ายออกหรือยกเลิกสัญญาก่อนครบกำหนดระยะเวลาเช่า ฝ่าย ข จะต้องชำระค่าอินเทอร์เน็ตสำหรับระยะเวลาที่เหลือตามสัญญา โดยคำนวณจากจำนวนเดือนคงเหลือ คูณค่าอินเทอร์เน็ตรายเดือน เดือนละ "+nf+" บาท",{cls:"ind just"});
+  }
+  if(kAir){
+    G();
+    P("zh",kAir+"、空调清洗：甲方每年为租赁房屋内的空调安排清洗1次，费用由甲方承担。如乙方需要额外清洗，费用由乙方承担。",{cls:"ind just"});
+    P("en","("+roman(kAir)+") Air Conditioner Cleaning: Party A shall arrange cleaning of the air conditioners at the rental house once a year at Party A’s expense. Any additional cleaning requested by Party B shall be at Party B’s expense.",{cls:"ind just"});
+    P("th",kAir+". การล้างแอร์: ฝ่าย ก จะจัดให้มีการล้างเครื่องปรับอากาศภายในบ้านเช่าปีละ 1 ครั้ง โดยฝ่าย ก เป็นผู้รับผิดชอบค่าใช้จ่าย หากฝ่าย ข ต้องการล้างเพิ่มเติมนอกเหนือจากนี้ ฝ่าย ข เป็นผู้รับผิดชอบค่าใช้จ่ายเอง",{cls:"ind just"});
+  }
+  G("l");
+  // 7
+  H("zh","七. 违约金和违约责任 ชำระความเสียหายและความรับผิดสำหรับการผิดสัญญา"); H("en","7. Liquidated Damages and Liability For Breach Of Agreement");
+  P("zh","1、若甲方在乙方没有违反本合同的情况下提前解除合同或租给他人，视为甲方违约，负责赔偿违约金。即甲方需要退还 "+F(num(D))+" 泰铢的押金加上 "+F(num(R))+" 泰铢的赔偿金，共 "+F(num(D+R))+" 泰铢。",{cls:"ind just"});
+  P("en","(I) If Party A terminated the agreement in advance, or lease the premises to third Party without Party B’s breach of agreement, it shall deemed that Party A has breached the contract. Party A shall responsible for compensation for liquidated damage. Party A shall refund THB "+F(num(D))+" Baht, plus the compensation of THB "+F(num(R))+" Baht, for a total of THB "+F(num(D+R))+" Baht.",{cls:"ind just"});
+  P("th","หากฝ่าย ก บอกเลิกสัญญาล่วงหน้าหรือให้เช่าสถานที่แก่บุคคลภายนอกโดยที่ฝ่าย ข ไม่ละเมิดข้อตกลง ให้ถือว่าฝ่าย ก ผิดสัญญา ฝ่าย ก จะต้องรับผิดชอบค่าชดเชยสำหรับความเสียหายที่เกิดขึ้น ฝ่าย ก จะคืนเงินให้ "+F(num(D))+" บาท บวกเงินชดเชย "+F(num(R))+" บาท รวมเป็นเงิน "+F(num(D+R))+" บาท",{cls:"ind just"});
+  G();
+  P("zh","2、如乙方在甲方未违反本协议的情况下，于约定租期届满前解除本协议或搬离租赁房屋，不论任何原因，均视为乙方违约。甲方有权在法律允许的范围内没收全部押金，乙方无权以任何理由要求退还押金。此规定不影响甲方就实际发生的损失另行要求赔偿或支付其他费用的权利。",{cls:"ind just"});
+  P("en","(II) In the event that Party B terminates this Agreement or vacates the rental house before the expiration of the agreed lease term, for any reason whatsoever, while Party A has not breached this Agreement, Party B shall be deemed to be in breach of this Agreement. Party A shall have the right to forfeit the entire security deposit to the extent permitted by law, and Party B shall not be entitled to any refund of the security deposit under any circumstances. This shall not prejudice Party A’s right to claim additional compensation or expenses for any actual damages incurred.",{cls:"ind just"});
+  P("th","ในกรณีที่ฝ่าย ข ประสงค์จะยกเลิกสัญญาเช่า หรือย้ายออกจากบ้านเช่าก่อนครบกำหนดระยะเวลาตามสัญญา โดยที่ฝ่าย ก ไม่ได้ผิดสัญญา ไม่ว่าจะด้วยเหตุผลใดก็ตาม ให้ถือว่าฝ่าย ข เป็นฝ่ายผิดสัญญา และฝ่าย ก มีสิทธิริบเงินประกันการเช่าทั้งหมดได้เท่าที่กฎหมายอนุญาต โดยฝ่าย ข ไม่มีสิทธิเรียกร้องขอคืนเงินประกันไม่ว่ากรณีใด ๆ ทั้งสิ้น ทั้งนี้ ไม่เป็นการตัดสิทธิฝ่าย ก ในการเรียกร้องค่าเสียหายหรือค่าใช้จ่ายอื่นเพิ่มเติมตามความเสียหายที่เกิดขึ้นจริง",{cls:"ind just"});
+  G("l");
+  // 8
+  H("zh","八．合同到期和续租 การหมดอายุสัญญาและการต่ออายุสัญญาเช่า"); H("en","8. Agreement Expiration And Lease Renewal");
+  P("zh","1、合同终止期为 "+F(en?en.getFullYear():"")+" 年 "+F(en?en.getMonth()+1:"")+" 月 "+F(en?en.getDate():"")+" 号。",{cls:"ind"});
+  P("en","(I) Agreement expiry date: "+F(dmy(en)),{cls:"ind"});
+  P("th","ระยะเวลาสิ้นสุดสัญญาคือวันที่ "+F(dmy(en)),{cls:"ind"});
+  G();
+  P("zh","2、合同到终止期，经双方的协商要终止合同或重新签合同。如重新签合同必须提前01个月书面通知甲方。合同终止时，甲方要把押金退给乙方（第七条第2款所述提前解约情形除外），若到终止期甲方发现乙方还没付电费，水费或其它费用，甲方有权利从押金中扣除所有须支付的费用。",{cls:"ind just"});
+  P("en","(II) Party A and Party B shall terminate or renew the agreement. Party B shall on the written request of the Party A made not less than 1 months before the date of expiry of this tenancy. When the agreement expires as scheduled, Party A shall return the deposit to Party B, except in the case under Clause 7 (II). If Party B has not paid the utilities, Party A has the right to deduct the fees as the true bill that required to pay from the deposit.",{cls:"ind just"});
+  P("th","ฝ่าย ก และฝ่าย ข จะยุติหรือต่ออายุข้อตกลง ฝ่าย ข จะต้องได้รับการร้องขอเป็นลายลักษณ์อักษรจากฝ่าย ก ที่แจ้งล่วงหน้าไม่น้อยกว่า 1 เดือนก่อนวันสิ้นสุดการเช่านี้ เมื่อสัญญาสิ้นสุดลงตามกำหนดและฝ่าย ข ไม่ได้ก่อความเสียหาย ฝ่าย ก จะคืนเงินมัดจำให้ฝ่าย ข หลังหักค่าใช้จ่ายที่ค้างชำระ (เว้นแต่กรณีผิดสัญญาตามข้อ 7.2) หากฝ่าย ข ไม่ได้ชำระค่าสาธารณูปโภค ฝ่าย ก มีสิทธิ์หักค่าธรรมเนียมตามสัดส่วนโดยมีเอกสารยืนยันที่ถูกต้อง",{cls:"ind just"});
+  G();
+  P("zh","3、合同期满后，如仍继续出租房屋，乙方享有优先权。租金应按周围市场租金涨幅，由双方协商后作适当调整。",{cls:"ind just"});
+  P("en","(III) Party B has to priority to renew the agreement, if Party wish to renew the agreement, at the end of tenancy. The rent should be adjusted according to the surround market, and after negotiation between two parties.",{cls:"ind just"});
+  P("th","หลังจากหมดอายุสัญญา ฝ่าย ข จะมีสิทธิได้รับความสำคัญในการพิจารณาให้ทำสัญญาเช่าต่อ ข้อตกลงในการขึ้นค่าเช่าจะพิจารณาตามการเพิ่มขึ้นของค่าเช่าในตลาดโดยรอบ และตกลงหลังการเจรจาระหว่างทั้งสองฝ่าย",{cls:"ind just"});
+  G("l");
+  H("zh","九. 免责条件 ข้อจำกัดความรับผิดชอบ"); H("en","9. Disclaimer");
+  P("zh","若租赁房屋因自然灾害或其他不可抗拒的因素导致甲方无法履约或造成乙方损失的，双方互不承担责任。租赁期间，若乙方因不可抗力的自然灾害导致不能使用租赁房屋，乙方需立即书面通知甲方。",{cls:"ind just"});
+  P("en","Due to natural disasters or other irresistible factors that cause Party A fail to perform the agreement or cause Party B loses, both parties shall not be liable for each other. During the tenancy, if Party B unable to use the premises due to force majeure event, Party B shall immediately notify Party A in writing.",{cls:"ind just"});
+  P("th","เนื่องจากภัยธรรมชาติหรือปัจจัยที่ไม่อาจต้านทานได้อื่น ๆ ที่ทำให้ฝ่าย ก ล้มเหลวในการปฏิบัติตามข้อตกลงหรือทำให้ ฝ่าย ข สูญเสีย ทั้งสองฝ่ายจะไม่รับผิดชอบซึ่งกันและกัน ในระหว่างการเช่า หากฝ่าย ข ไม่สามารถใช้สถานที่ได้เนื่องจากเหตุสุดวิสัย ฝ่าย ข จะแจ้งให้ฝ่าย ก ทราบเป็นลายลักษณ์อักษรทันที",{cls:"ind just"});
+  G("l");
+  H("zh","十. 争议的解决方式 การระงับข้อพิพาท"); H("en","10. Dispute and Resolution");
+  P("zh","本合同如出现争议，双方应友好协商解决，协商不成时，任何一方均可以向当地政府法院起诉。",{cls:"ind just"});
+  P("en","If there is a dispute in this agreement, two parties shall settle through friendly negotiation. If negotiation fails, either party can bring a lawsuit to the local government court.",{cls:"ind just"});
+  P("th","หากมีข้อพิพาทในข้อตกลงนี้ ทั้งสองฝ่ายจะต้องยุติการเจรจาอย่างเป็นมิตร หากการเจรจาล้มเหลว ฝ่ายใดฝ่ายหนึ่งสามารถยื่นฟ้องต่อศาลปกครองส่วนท้องถิ่นได้",{cls:"ind just"});
+  G("l");
+  H("zh","十一、本合同如有未尽事宜，甲、乙双方应在法律的基础上共同协商，作出补充规定，补充规定与本合同具有同等效力。");
+  H("en","11. If there are any matters not covered in this agreement, Party A and Party B shall negotiate on the basis of law and make supplementary agreements. The supplementary agreements shall have the same effect as this agreement.");
+  P("th","11. หากมีประเด็นใดที่ไม่ครอบคลุมในข้อตกลงนี้ ฝ่าย ก และฝ่าย ข จะเจรจาบนพื้นฐานของกฎหมายและทำข้อตกลงเพิ่มเติม ข้อตกลงเพิ่มเติมจะมีผลเช่นเดียวกับข้อตกลงนี้",{cls:"just"});
+  G("l");
+  H("zh","十二、本合同自双方签署之日起生效，一式2份，甲方执1份，乙方执1份，具有同等法律效力。");
+  P("en","12. This contract shall come into effect since the date of signing by the two parties, the contract shall be in 2, party A shall hold 1 copy, and party B shall hold 1 copy, and each copy shall have equal legal effect.",{cls:"just"});
+  P("th","12. สัญญาฉบับนี้จะมีผลบังคับใช้เมื่อทั้งสองฝ่ายลงนามครบถ้วนสมบูรณ์แล้ว โดยจะมีทั้งหมด 2 ฉบับคือ ฝ่าย ก 1 ฉบับ และ ฝ่าย ข 1 ฉบับ โดยเอกสารสัญญาทั้งสองฉบับจะมีผลทางกฎหมายเท่ากัน",{cls:"just"});
+  if(s.protect){
+    G("l");
+    H("zh","十三、当该财产被扣押或拍卖时，保护乙方的权利。");
+    ["甲方承诺并同意，如果本合约下租赁的房产因任何原因被扣押、没收或拍卖，乙方仍有权根据本租赁条款使用该房产，直至合约按约定期限终止。","如果房产所有权转移给第三方，例如银行、拍卖买家或其他人士，甲方必须告知该人士甲方与乙方之间存在租赁协议，所有权受让人必须完全承担原业主赋予甲方的权利和义务，并必须尊重仍然有效的租赁协议。","此外，如果发生驱逐诉讼或任何导致乙方遭受困难、丧失权利或无法根据本租赁协议项下的权利在该房产中居住的行为，房产购买者或新业主将负责直接赔偿乙方的损失、搬迁费用或失去的机会成本。这并不影响乙方依法要求额外赔偿的权利。","甲方同意，乙方可以使用本租赁协议的副本向第三方或政府官员出示，以在必要时证明乙方在本协议下的权利。"].forEach(t=>P("zh",t,{cls:"ind just"}));
+    G("s");
+    H("en","13. Protection of the rights of Party B in the event that the property is seized or auctioned.");
+    ["Party A undertakes and agrees that if the property leased under this contract is seized, foreclosed, or auctioned for any reason whatsoever, Party B will still have the right to use the property under the terms of this lease until the contract ends according to the agreed period.","In the event that the ownership of the property is transferred to a third party, such as a bank, auction buyer, or other person, Party A must inform such person of the existence of the lease agreement between Party A and Party B, and the transferee of ownership must fully assume the rights and duties of Party A from the original owner and must respect the lease agreement that is still in effect.","Furthermore, if there is a lawsuit to evict or any action that causes Party B to suffer hardship, lose rights, or be unable to reside in the property according to its rights under this lease agreement, the purchaser or new owner of the property will be responsible for compensating Party B for damages, moving out expenses, or lost opportunity costs directly. This does not affect Party B's right to claim additional damages under the law.","Party A agrees that Party B can use a copy of this lease agreement to show to third parties or government officials to demonstrate the rights of Party B under this Agreement if necessary."].forEach(t=>P("en",t,{cls:"ind just"}));
+    G("s");
+    H("th","13. การคุ้มครองสิทธิของฝ่าย ข. ในกรณีทรัพย์ถูกยึด หรือขายทอดตลาด");
+    ["ฝ่าย ก. รับรองและตกลงว่า หากทรัพย์สินที่ให้เช่าตามสัญญานี้ถูกยึด ถูกบังคับคดี หรือถูกขายทอดตลาดไม่ว่าจะด้วยเหตุใดก็ตาม ฝ่าย ข. ยังคงมีสิทธิใช้ประโยชน์ในทรัพย์สินตามเงื่อนไขของสัญญาเช่าฉบับนี้จนกว่าสัญญาจะสิ้นสุดตามระยะเวลาที่ตกลงกันไว้","ในกรณีที่มีการโอนกรรมสิทธิ์ของทรัพย์สินให้แก่บุคคลภายนอก เช่น ธนาคาร ผู้ซื้อทรัพย์ทอดตลาด หรือบุคคลอื่น ฝ่าย ก. จะต้องแจ้งให้บุคคลดังกล่าวทราบถึงการมีอยู่ของสัญญาเช่าระหว่างฝ่าย ก. และฝ่าย ข. และผู้รับโอนกรรมสิทธิ์จะต้องรับช่วงสิทธิและหน้าที่ของฝ่าย ก. ต่อจากเจ้าของเดิมโดยสมบูรณ์ และต้องเคารพสัญญาเช่าที่ยังมีผลบังคับอยู่","ทั้งนี้ หากมีการฟ้องร้องขับไล่ หรือการกระทำใด ๆ ที่ทำให้ฝ่าย ข. ได้รับความเดือดร้อน สูญเสียสิทธิ หรือไม่สามารถอยู่อาศัยในทรัพย์สินได้ตามสิทธิของตนในสัญญาเช่านี้ ผู้ซื้อทรัพย์หรือเจ้าของกรรมสิทธิ์รายใหม่จะต้องเป็นผู้รับผิดชอบในการชดเชยค่าเสียหาย ค่าใช้จ่ายในการย้ายออก หรือค่าเสียโอกาสให้แก่ฝ่าย ข. โดยตรง ทั้งนี้ไม่กระทบต่อสิทธิของฝ่าย ข. ในการเรียกร้องค่าเสียหายเพิ่มเติมตามกฎหมาย","ฝ่าย ก. ยินยอมให้ฝ่าย ข. ใช้สำเนาสัญญาเช่าฉบับนี้แสดงต่อบุคคลภายนอกหรือเจ้าหน้าที่ของรัฐ เพื่อแสดงสิทธิของฝ่าย ข. ตามข้อตกลงนี้ในกรณีจำเป็น"].forEach(t=>P("th",t,{cls:"ind just"}));
+  }
+  G("l");
+  P("zh","<b>本租赁协议以英文、中文和泰文书写，分别由甲方和乙方签署。中文和泰文译本仅为方便理解而提供。如中、英、泰文版本有任何歧义，以泰文版本为准。</b>",{cls:"just"});
+  P("en","This lease agreement in English, Chinese and Thai languages. Party A and Party B each will keep one signed copy. The Chinese and Thai translation is only for purpose of easy understanding. If there is any discrepancy in different languages, the Thai language version shall prevail.",{cls:"just"});
+  P("th","สัญญาเช่านี้ทำขึ้นเป็นภาษาอังกฤษ ภาษาจีน และภาษาไทย ฝ่าย ก. และ ฝ่าย ข. จะเก็บสำเนาที่ลงนามไว้คนละฉบับ การแปลภาษาจีนและภาษาไทยมีจุดประสงค์เพื่อให้เข้าใจง่ายเท่านั้น หากมีความแตกต่างในภาษาอื่น ให้ถือฉบับภาษาไทยเป็นหลัก",{cls:"just"});
+  G("l");
+  P("zh","<b>本合同一式两份，内容正确、相同。双方已通读本合同，认为本合同内容真实，并已在证人面前签字确认本合同，并保存一份副本留作记录。</b>",{cls:"just",keep:1});
+  P("en","This contract made in duplicates, both of which has the correct and identical content. Both Parties has thoroughly read this Contract and found that they are true to each Party's intention, and both Parties has affixed their signatures in recognizance thereof, before witnesses, and both Parties has retained a copy for their records.",{cls:"just",keep:1});
+  P("th","สัญญานี้ทำขึ้นเป็น 2 ฉบับ ซึ่งมีข้อความที่ถูกต้องและตรงกันทุกประการ คู่สัญญาได้อ่านและทำความเข้าใจข้อความในสัญญานี้โดยตลอด แล้วจึงได้ลงลายมือชื่อให้ไว้เป็นหลักฐานต่อหน้าพยาน โดยคู่สัญญาต่างถือไว้ฝ่ายละหนึ่งฉบับ",{cls:"just",keep:1});
+  G("l");
+  const nm=v=>v?"( "+esc(v)+" )":"( ........................................ )";
+  B.push({sig:1,html:
+    '<div>甲方（签字）ผู้ให้เช่า / Party A (signature):<span class="ln"></span><span class="nm">'+nm(s.llName)+'</span></div>'+
+    '<div>乙方（签字）ผู้เช่า / Party B (signature):<span class="ln"></span><span class="nm">'+nm(s.tnName)+'</span></div>'+
+    '<div>见证人（签字）พยาน / Witness (signature):<span class="ln"></span><span class="nm">'+nm("")+'</span></div>'+
+    '<div>见证人（签字）พยาน / Witness (signature):<span class="ln"></span><span class="nm">'+nm("")+'</span></div>'});
+  return {blocks:B,pay,end:en,gross,tax,dm};
+}
+
+/* ---------- pagination ---------- */
+const pagesEl=$("pages");
+function newPage(){const p=document.createElement("div");p.className="page";const b=document.createElement("div");b.className="body";const n=document.createElement("div");n.className="pno";p.append(b,n);pagesEl.appendChild(p);return b;}
+function blockEl(b){
+  const el=document.createElement("div");
+  if(b.gap!==undefined){el.className="gap "+b.gap;el.dataset.gap="1";return el;}
+  if(b.sig){el.className="sig";el.innerHTML=thz(b.html);return el;}
+  el.className="b "+b.lang+(b.title?" title":"")+(b.h?" h":"")+(b.cls?" "+b.cls:"");
+  el.innerHTML=thz(b.html);
+  if(b.keep||b.h)el.dataset.keep="1";
+  return el;
+}
+function paginate(blocks){
+  pagesEl.innerHTML="";
+  let body=newPage();
+  for(const b of blocks){
+    const el=blockEl(b);
+    if(el.dataset.gap&&!body.childElementCount)continue;
+    body.appendChild(el);
+    if(body.scrollHeight>body.clientHeight+1&&body.childElementCount>1){
+      body.removeChild(el);
+      const carry=[];
+      while(body.lastElementChild&&(body.lastElementChild.dataset.keep==="1"||body.lastElementChild.dataset.gap)&&body.childElementCount>1){const c=body.lastElementChild;body.removeChild(c);if(!c.dataset.gap)carry.unshift(c);}
+      body=newPage();
+      carry.forEach(c=>body.appendChild(c));
+      if(!(el.dataset.gap&&!body.childElementCount))body.appendChild(el);
+    }
+  }
+  const pages=[...pagesEl.querySelectorAll(".page")];
+  pages.forEach((p,i)=>{p.querySelector(".pno").textContent=(i+1)+" / "+pages.length;});
+  $("pageCount").textContent="A4 · "+pages.length+" หน้า";
+  fitZoom();
+}
+function fitZoom(){const w=pagesEl.parentElement.clientWidth-32;const z=Math.min(1,Math.max(.3,w/794));pagesEl.style.setProperty("--z",z.toFixed(3));}
+window.addEventListener("resize",()=>fitZoom());
+
+/* ---------- form binding ---------- */
+function readForm(){
+  FIELDS.forEach(f=>{const el=$(f);if(!el)return;S[f]=el.type==="checkbox"?el.checked:(el.type==="number"?(el.value===""?"":Number(el.value)):el.value);});
+}
+function writeForm(){
+  FIELDS.forEach(f=>{const el=$(f);if(!el)return;if(el.type==="checkbox")el.checked=!!S[f];else el.value=S[f]==null?"":S[f];});
+  setMode(S.mode||"new",true);
+}
+function setMode(m,silent){S.mode=m;$("modeNew").setAttribute("aria-pressed",m==="new");$("modeRenew").setAttribute("aria-pressed",m==="renew");$("prevWrap").hidden=m!=="renew";if(!silent)refresh();}
+$("modeNew").onclick=()=>{setMode("new");};
+$("modeRenew").onclick=()=>{if(Number(S.advance)<=1&&Number(S.months))$("advance").value=S.months;setMode("renew");};
+$("tnType").addEventListener("change",()=>{const c=$("tnType").value==="company";$("wht").checked=c;});
+$("start").addEventListener("change",()=>{const d=parseD($("start").value);if(d)$("payDay").value=d.getDate();});
+$("rent").addEventListener("change",()=>{const r=Number($("rent").value)||0;if(r&&S.mode==="new")$("deposit").value=r*2;});
+
+let timer=null,draftTimer=null;
+function refresh(){
+  readForm();
+  $("netWrap").hidden=!S.internet;
+  const r=build(S);
+  const fm=v=>(Number(v)||0).toLocaleString("en-US");
+  $("termSum").innerHTML='<span class="chip">สิ้นสุด '+(r.end?dmy(r.end):"–")+'</span>';
+  $("moneySum").innerHTML='<span class="chip">ประกัน '+r.dm+' เดือน</span><span class="chip">ชำระวันเซ็น '+fm(r.pay)+' บาท</span>'+(S.wht?'<span class="chip">ก่อนหักภาษี '+r.gross.toLocaleString("en-US",{minimumFractionDigits:2})+'</span>':'');
+  paginate(r.blocks);
+  clearTimeout(draftTimer);draftTimer=setTimeout(()=>saveDraft(),400);
+}
+$("f").addEventListener("input",()=>{clearTimeout(timer);timer=setTimeout(refresh,120);});
+$("f").addEventListener("change",()=>{clearTimeout(timer);timer=setTimeout(refresh,60);});
+$("f").addEventListener("submit",e=>e.preventDefault());
+
+/* ---------- status ---------- */
+function say(msg,err){const s=$("status");s.textContent=msg;s.className="status"+(err?" err":"");}
+
+/* ---------- PDF ---------- */
+function safeName(){const base=(S.addr1||"").split(/[ ,]/)[0]||"lease";return ("สัญญาเช่า "+base+(S.mode==="renew"?" (ต่ออายุ)":"")).replace(/[\/\\:*?"<>|]/g,"-")+".pdf";}
+async function makePdf(){
+  if(!window.html2canvas||!window.jspdf)throw new Error("libs");
+  await document.fonts.ready;
+  refresh();
+  const off=document.createElement("div");off.className="offscreen";
+  off.innerHTML=pagesEl.innerHTML;document.body.appendChild(off);
+  try{
+    const {jsPDF}=window.jspdf;const pdf=new jsPDF({unit:"mm",format:"a4",orientation:"portrait",compress:true});
+    const pages=[...off.querySelectorAll(".page")];
+    for(let i=0;i<pages.length;i++){
+      say("กำลังสร้าง PDF หน้า "+(i+1)+" / "+pages.length+" …");
+      pages[i].style.boxShadow="none";
+      const c=await html2canvas(pages[i],{scale:2,backgroundColor:"#ffffff",logging:false,useCORS:true});
+      if(i)pdf.addPage();
+      pdf.addImage(c.toDataURL("image/jpeg",0.9),"JPEG",0,0,210,297,undefined,"FAST");
+    }
+    return pdf.output("blob");
+  }finally{off.remove();}
+}
+window.__makePdf=makePdf;
+$("btnPrint").onclick=()=>{refresh();setTimeout(()=>window.print(),60);};
+$("btnPdf").onclick=async()=>{
+  const btn=$("btnPdf");btn.disabled=true;
+  try{
+    const blob=await makePdf();
+    const url=URL.createObjectURL(blob);const a=document.createElement("a");
+    a.href=url;a.download=safeName();document.body.appendChild(a);a.click();a.remove();
+    setTimeout(()=>URL.revokeObjectURL(url),4000);
+    say("ดาวน์โหลด PDF แล้ว");
+  }catch(e){say(e&&e.message==="libs"?"โหลดตัวสร้าง PDF ไม่สำเร็จ ลองรีเฟรชหน้านี้":"สร้าง PDF ไม่สำเร็จ ("+((e&&e.message)||"error")+")",true);}
+  finally{btn.disabled=false;}
+};
+
+/* ---------- contract store (this browser) ---------- */
+const KEY="liv-agreement-files";
+let files=[], pendingDelete=null;
+function loadFiles(){try{files=JSON.parse(localStorage.getItem(KEY)||"[]");if(!Array.isArray(files))files=[];}catch(e){files=[];}}
+function persist(){try{localStorage.setItem(KEY,JSON.stringify(files));return true;}catch(e){say("บันทึกในเครื่องไม่ได้ (เบราว์เซอร์ปิดการเก็บข้อมูล)",true);return false;}}
+function autoName(){const a=(S.addr1||"").split(/[ ,]/)[0];const y=(S.start||"").slice(0,4);return [a,S.tnName,y,S.mode==="renew"?"ต่ออายุ":""].filter(Boolean).join(" ");}
+function fmtTime(iso){try{const d=new Date(iso);return d.getDate()+"/"+(d.getMonth()+1)+"/"+d.getFullYear()+" "+pad2(d.getHours())+":"+pad2(d.getMinutes());}catch(e){return "";}}
+function renderSaved(){
+  const ul=$("savedList");ul.innerHTML="";
+  const q=($("search").value||"").trim().toLowerCase();
+  const list=files.slice().sort((a,b)=>(b.updatedAt||"").localeCompare(a.updatedAt||"")).filter(f=>!q||(f.name+" "+(f.data&&f.data.tnName||"")+" "+(f.data&&f.data.addr1||"")).toLowerCase().includes(q));
+  const msg=t=>{const li=document.createElement("li");const sp=document.createElement("span");sp.textContent=t;li.appendChild(sp);ul.appendChild(li);};
+  if(!files.length)return msg("ยังไม่มีสัญญาที่บันทึก ตั้งชื่อไฟล์แล้วกด “บันทึก”");
+  if(!list.length)return msg("ไม่พบสัญญาที่ตรงกับคำค้น");
+  list.forEach(r=>{
+    const li=document.createElement("li");if(r.id===currentId)li.className="cur";
+    const meta=document.createElement("div");meta.className="meta";
+    const t=document.createElement("b");t.textContent=r.name;t.title=r.name;
+    const sm=document.createElement("small");sm.textContent="แก้ไขล่าสุด "+fmtTime(r.updatedAt);
+    meta.append(t,sm);
+    const box=document.createElement("div");
+    if(pendingDelete===r.id){
+      box.className="confirm";box.append("ลบไฟล์นี้?");
+      const y=document.createElement("button");y.className="small";y.type="button";y.textContent="ลบ";
+      y.onclick=()=>{files=files.filter(f=>f.id!==r.id);persist();if(currentId===r.id)currentId=null;pendingDelete=null;renderSaved();say("ลบ "+r.name+" แล้ว");};
+      const n=document.createElement("button");n.className="small";n.type="button";n.textContent="ไม่";n.onclick=()=>{pendingDelete=null;renderSaved();};
+      box.append(y,n);
+    }else{
+      const o=document.createElement("button");o.className="small";o.type="button";o.textContent="เปิด";
+      o.onclick=()=>{S=Object.assign({},EXAMPLE,r.data||{});currentId=r.id;currentLabel=r.name;$("fileName").value=r.name;writeForm();refresh();renderSaved();say("เปิดไฟล์ "+r.name);};
+      const d=document.createElement("button");d.className="small";d.type="button";d.textContent="ลบ";d.onclick=()=>{pendingDelete=r.id;renderSaved();};
+      box.append(o,d);
+    }
+    li.append(meta,box);ul.appendChild(li);
+  });
+}
+function saveFile(asNew){
+  readForm();
+  let name=($("fileName").value||"").trim()||autoName()||"สัญญาไม่มีชื่อ";
+  const now=new Date().toISOString();
+  if(!asNew&&currentId&&files.some(f=>f.id===currentId)){
+    const f=files.find(f=>f.id===currentId);f.name=name;f.data=Object.assign({},S);f.updatedAt=now;
+  }else{
+    if(files.some(f=>f.name===name)){let k=2;while(files.some(f=>f.name===name+" ("+k+")"))k++;name=name+" ("+k+")";}
+    currentId="c"+Date.now().toString(36)+Math.random().toString(36).slice(2,6);
+    files.push({id:currentId,name,data:Object.assign({},S),createdAt:now,updatedAt:now});
+  }
+  currentLabel=name;$("fileName").value=name;
+  if(persist())say("บันทึกแล้ว: "+name);
+  renderSaved();saveDraft();
+}
+$("btnSave").onclick=()=>saveFile(false);
+$("btnSaveAs").onclick=()=>saveFile(true);
+$("btnNew").onclick=()=>{currentId=null;currentLabel="";readForm();S.tnName="";S.tnId="";S.prevDate="";$("fileName").value="";writeForm();refresh();renderSaved();say("เริ่มสัญญาใหม่ เงื่อนไขเดิมยังอยู่ กรอกข้อมูลผู้เช่าแล้วตั้งชื่อไฟล์");};
+$("search").addEventListener("input",renderSaved);
+$("fileName").addEventListener("input",()=>{clearTimeout(draftTimer);draftTimer=setTimeout(()=>saveDraft(),400);});
+$("btnExport").onclick=()=>{
+  const blob=new Blob([JSON.stringify({app:"liv-agreement",version:1,exportedAt:new Date().toISOString(),files},null,2)],{type:"application/json"});
+  const url=URL.createObjectURL(blob);const a=document.createElement("a");const d=new Date();
+  a.href=url;a.download="liv-agreement-backup-"+d.getFullYear()+pad2(d.getMonth()+1)+pad2(d.getDate())+".json";document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),4000);
+  say("สำรองข้อมูล "+files.length+" ไฟล์แล้ว");
+};
+$("importFile").addEventListener("change",async e=>{
+  const f=e.target.files&&e.target.files[0];if(!f)return;
+  try{const j=JSON.parse(await f.text());const list=Array.isArray(j)?j:j.files;if(!Array.isArray(list))throw 0;
+    let added=0,updated=0;
+    list.forEach(x=>{if(!x||!x.id||!x.data)return;const i=files.findIndex(y=>y.id===x.id);if(i<0){files.push(x);added++;}else if((x.updatedAt||"")>(files[i].updatedAt||"")){files[i]=x;updated++;}});
+    persist();renderSaved();say("นำเข้าแล้ว: เพิ่ม "+added+" ไฟล์, อัปเดต "+updated+" ไฟล์");
+  }catch(err){say("ไฟล์นี้ไม่ใช่ไฟล์สำรองของระบบ",true);}
+  e.target.value="";
+});
+function saveDraft(){try{localStorage.setItem("lease-draft",JSON.stringify({S,currentId,currentLabel,fileName:$("fileName").value}));}catch(e){}}
+
+/* ---------- boot ---------- */
+loadFiles();
+try{const d=JSON.parse(localStorage.getItem("lease-draft")||"null");if(d&&d.S){S=Object.assign({},EXAMPLE,d.S);currentId=d.currentId||null;currentLabel=d.currentLabel||"";$("fileName").value=d.fileName||"";}}catch(e){}
+writeForm();refresh();renderSaved();
+if(document.fonts&&document.fonts.ready)document.fonts.ready.then(()=>refresh());
+})();
+</script>
+</body>
+</html>
